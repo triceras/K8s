@@ -1,0 +1,40 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kibana-logging
+  #namespace: kube-system
+  labels:
+    k8s-app: kibana-logging
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: kibana-logging
+  template:
+    metadata:
+      labels:
+        k8s-app: kibana-logging
+    spec:
+      containers:
+      - name: kibana-logging
+        #image: emacski/k8s-kibana:latest
+        image: triceras/kibana:latest
+        resources:
+          # keep request = limit to keep this container in guaranteed class
+          limits:
+            cpu: 100m
+          requests:
+            cpu: 100m
+        env:
+          - name: "KIBANA_ELASTICSEARCH_URL"
+            value: "http://a868d87e26aab11e7a2ac02044a16b92-1046782428.ap-southeast-2.elb.amazonaws.com:9200"
+          #- name: "KIBANA_BASE_URL"
+          #  value: "/api/v1/proxy/namespaces/default/services/kibana-logging"
+          - name: "SERVER_BASEPATH"
+            value: "/kibana"
+          #- name: "SERVER_BASEPATH"
+          #  value: ""
+        ports:
+        - containerPort: 5601
+          name: ui
+          protocol: TCP
